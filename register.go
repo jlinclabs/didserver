@@ -7,8 +7,6 @@ import (
 	"fmt"
 	"net/http"
 
-	//"github.com/hashicorp/go-multierror"
-
 	_ "github.com/lib/pq"
 )
 
