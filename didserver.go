@@ -23,6 +23,7 @@ var ValidContexts = make(map[string]struct{})
 type Config struct {
 	Database database
 	Keys     keys
+	At       at
 }
 
 type database struct {
@@ -32,6 +33,10 @@ type database struct {
 type keys struct {
 	Public string `toml:"public"`
 	Secret string `toml:"secret"`
+}
+
+type at struct {
+	Context string `toml:"context"`
 }
 
 // Conf is a global configuration handle
