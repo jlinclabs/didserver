@@ -62,6 +62,8 @@ func validIDFormat(id string) bool {
 
 func decryptRegSecret(c string, n string, pk string, sk string) ([]byte, bool) {
 	cyphertext := b64Decode(c)
+
+	// box.Open requires nonce to be type *[24]byte and keys to be type *[32]byte
 	var nonce [24]byte
 	var senderPubkey [32]byte
 	var serverSecret [32]byte

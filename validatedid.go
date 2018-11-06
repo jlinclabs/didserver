@@ -33,41 +33,30 @@ func validateDID(registration *Registration) error {
 	// get the signing and encrypting public keys
 	var signingPkey []byte
 	var encryptingPkey []byte
-
 	for _, key := range registration.DID.PublicKeys {
 		idParts := strings.Split(key.ID, "#")
 		if idParts[1] == "signing" {
-			signingMetadata := true
 			if key.Owner != registration.DID.ID {
-				signingMetadata = false
 				result = multierror.Append(result, errors.New("Signing key owner incorrect"))
 			}
 			if key.Type != "ed25519" {
-				signingMetadata = false
 				result = multierror.Append(result, errors.New("Signing key type incorrect"))
 			}
-			if signingMetadata {
-				signingPkey = b64Decode(key.PublicKeyBase64)
-			}
+			signingPkey = b64Decode(key.PublicKeyBase64)
 		}
 		if idParts[1] == "encrypting" {
-			encryptingMetadata := true
 			if key.Owner != registration.DID.ID {
-				encryptingMetadata = false
 				result = multierror.Append(result, errors.New("Encrypting key owner incorrect"))
 			}
 			if key.Type != "curve25519" {
-				encryptingMetadata = false
 				result = multierror.Append(result, errors.New("Encrypting key type incorrect"))
 			}
-			if encryptingMetadata {
-				encryptingPkey = b64Decode(key.PublicKeyBase64)
-			}
+			encryptingPkey = b64Decode(key.PublicKeyBase64)
 		}
 	}
 
 	if len(signingPkey) != ed25519.PublicKeySize {
-		result = multierror.Append(result, errors.New("signing public key size incorrect"))
+		result = multierror.Append(result, errors.New("signing public key missing or size incorrect"))
 	} else {
 		//check registration.Signature
 		signed := registration.DID.ID + "." + registration.DID.CreatedAt
@@ -78,7 +67,7 @@ func validateDID(registration *Registration) error {
 		}
 	}
 	if len(encryptingPkey) != 32 {
-		result = multierror.Append(result, errors.New("encrypting public key size incorrect"))
+		result = multierror.Append(result, errors.New("encrypting public key missing or size incorrect"))
 	} else {
 		//check that registration.Secret.Cyphertext can be decoded
 		_, ok := decryptRegSecret(registration.Secret.Cyphertext, registration.Secret.Nonce, b64Encode(encryptingPkey), Conf.Keys.Secret)
