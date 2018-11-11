@@ -53,7 +53,7 @@ func joinStringSlice(strs []string) string {
 
 func validIDFormat(id string) bool {
 	idParts := strings.Split(id, ":")
-	idRxp := regexp.MustCompile("^[\\w\\-]+$") //base64 string
+	idRxp := regexp.MustCompile(`^[\w\-]+$`) //base64 string
 	if len(idParts) == 3 && idParts[0] == "did" && idParts[1] == "jlinc" && idRxp.MatchString(idParts[2]) {
 		return true
 	}
