@@ -50,7 +50,7 @@ type pubkey struct {
 }
 
 func registerDID(w http.ResponseWriter, r *http.Request) {
-	j, err := getRawDID(r)
+	rawDID, err := getRawDID(r)
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusBadRequest)
@@ -76,7 +76,7 @@ func registerDID(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// add in some local values
-	registration.Raw = string(j)
+	registration.Raw = rawDID
 	registration.Root = registration.DID.ID
 	registration.Status = "init"
 
