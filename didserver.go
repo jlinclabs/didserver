@@ -24,6 +24,7 @@ type Config struct {
 	Database database
 	Keys     keys
 	At       at
+	IsTest   bool
 }
 
 type database struct {

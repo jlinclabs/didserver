@@ -11,7 +11,7 @@ import (
 )
 
 func TestIndexPage(t *testing.T) {
-	var Conf Config
+	var Conf Config //it deliberately shadows declaration at didserver.go:44
 	type TestHomepageContent struct {
 		masterPublicKey string
 	}
