@@ -16,9 +16,6 @@ import (
 // DB is a global database handle
 var DB *sql.DB
 
-// ValidContexts holds enumeration of valid JSON-LD contexts
-var ValidContexts = make(map[string]struct{})
-
 // Config holds app configuration data from config.toml
 type Config struct {
 	Database database
@@ -42,9 +39,6 @@ type at struct {
 
 // Conf is a global configuration handle
 var Conf Config
-
-// MasterPublicKey can be redefined for testing
-var MasterPublicKey string
 
 func main() {
 	r := chi.NewRouter()
@@ -82,9 +76,8 @@ func main() {
 	log.Fatal(http.ListenAndServe(":5001", r))
 }
 
-// Index page is a json-ld list of API endpoints
+// Index page
 func indexstr(w http.ResponseWriter, r *http.Request) {
-	MasterPublicKey = Conf.Keys.Public
 	w.Header().Set("Content-Type", "application/json")
 	fmt.Fprintf(w, `{"masterPublicKey":%q}`, Conf.Keys.Public)
 }

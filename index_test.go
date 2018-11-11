@@ -1,7 +1,7 @@
 package main
 
 import (
-	"encoding/json"
+	"fmt"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -11,15 +11,9 @@ import (
 )
 
 func TestIndexPage(t *testing.T) {
-	var Conf Config //it deliberately shadows declaration at didserver.go:44
-	type TestHomepageContent struct {
-		masterPublicKey string
-	}
-
 	if _, err := toml.DecodeFile("./test.config.toml", &Conf); err != nil {
 		log.Fatal(err)
 	}
-	MasterPublicKey = Conf.Keys.Public
 
 	// Create a request to pass to our handler. We don't have any query parameters for now, so we'll
 	// pass 'nil' as the third parameter.
@@ -47,10 +41,9 @@ func TestIndexPage(t *testing.T) {
 	}
 
 	// Check content
-	var testHomepageContent TestHomepageContent
-	_ = json.Unmarshal([]byte(rr.Body.String()), &testHomepageContent)
-
-	if testHomepageContent.masterPublicKey != MasterPublicKey {
-		t.Errorf("Homepage returned unexpected key: got %s want %s", testHomepageContent.masterPublicKey, MasterPublicKey)
+	bodytxt := fmt.Sprintf("%s", rr.Body)
+	expected := fmt.Sprintf(`{"masterPublicKey":%q}`, Conf.Keys.Public)
+	if bodytxt != expected {
+		t.Errorf("Homepage returned unexpected content: got %s want %s", bodytxt, expected)
 	}
 }
