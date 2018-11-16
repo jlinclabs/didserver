@@ -7,11 +7,8 @@ import (
 	"encoding/base64"
 	"fmt"
 	"net/http"
-	"regexp"
 	"strconv"
 	"strings"
-
-	"golang.org/x/crypto/nacl/box"
 )
 
 // Formatting multierror results
@@ -49,36 +46,6 @@ func joinStringSlice(strs []string) string {
 		sb.WriteString(str)
 	}
 	return sb.String()
-}
-
-func validIDFormat(id string) bool {
-	idParts := strings.Split(id, ":")
-	idRxp := regexp.MustCompile(`^[\w\-]+$`) //base64 string
-	if len(idParts) == 3 && idParts[0] == "did" && idParts[1] == "jlinc" && idRxp.MatchString(idParts[2]) {
-		return true
-	}
-	return false
-}
-
-func decryptRegSecret(c string, n string, pk string, sk string) ([]byte, bool) {
-	cyphertext := b64Decode(c)
-
-	// box.Open requires nonce to be type *[24]byte and keys to be type *[32]byte
-	var nonce [24]byte
-	var senderPubkey [32]byte
-	var serverSecret [32]byte
-	copy(nonce[:], b64Decode(n))
-	copy(senderPubkey[:], b64Decode(pk))
-	copy(serverSecret[:], b64Decode(sk))
-
-	// node-sodium/libsodium prefixes the cyphertext with 16 bytes of zeros (sodium.crypto_box_BOXZEROBYTES).
-	// box.Open doesn't seem to like this, so we strip them off.
-	if prefixed := zeroPrefixed(cyphertext, 16); prefixed {
-		cyphertext = cyphertext[16:]
-	}
-
-	secret, ok := box.Open(nil, cyphertext, &nonce, &senderPubkey, &serverSecret)
-	return secret, ok
 }
 
 func zeroPrefixed(c []byte, n int) bool {
