@@ -41,7 +41,7 @@ func registerConfirm(w http.ResponseWriter, r *http.Request) {
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusUnauthorized)
-		fmt.Fprintf(w, `{"success":"false", "error":%q}`, err)
+		fmt.Fprintf(w, `{"success":"false", "error":"JWT-%s"}`, err)
 		return
 	}
 
