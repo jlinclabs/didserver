@@ -56,6 +56,7 @@ func main() {
 
 	r.Get("/", indexstr)
 	r.Post("/register", registerDID)
+	r.Post("/confirm", registerConfirm)
 
 	if _, err := toml.DecodeFile("./config.toml", &Conf); err != nil {
 		log.Fatal(err)
