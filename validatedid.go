@@ -9,14 +9,13 @@ import (
 	"golang.org/x/crypto/ed25519"
 )
 
-func validateDID(registration *Registration) error {
+func validateDIDparams(registration *Registration) *multierror.Error {
 	var result *multierror.Error
-
 	if registration.DID.AtContext != Conf.At.Context {
 		result = multierror.Append(result, errors.New("@context missing or incorrect"))
 	}
 
-	if !validIDFormat(registration.DID.ID) {
+	if _, ok := getValidID(registration.DID.ID); !ok {
 		result = multierror.Append(result, errors.New("id must be did:jlinc:{base64 encoded string}"))
 	}
 
@@ -31,8 +30,12 @@ func validateDID(registration *Registration) error {
 			result = multierror.Append(result, errors.New("DID timestamp is out of bounds"))
 		}
 	}
+	return result
+}
 
+func getDIDkeys(registration *Registration) *multierror.Error {
 	// get the signing and encrypting public keys
+	var result *multierror.Error
 	for _, key := range registration.DID.PublicKeys {
 		idParts := strings.Split(key.ID, "#")
 		if len(idParts) > 1 {
@@ -56,7 +59,11 @@ func validateDID(registration *Registration) error {
 			}
 		}
 	}
+	return result
+}
 
+func validateDIDsignature(registration *Registration) *multierror.Error {
+	var result *multierror.Error
 	signingPkey := b64Decode(registration.SigningKey)
 	if len(signingPkey) != ed25519.PublicKeySize {
 		result = multierror.Append(result, errors.New("signing public key missing or size incorrect"))
@@ -69,7 +76,11 @@ func validateDID(registration *Registration) error {
 			result = multierror.Append(result, errors.New("signature did not verify"))
 		}
 	}
+	return result
+}
 
+func validateDIDsecret(registration *Registration) *multierror.Error {
+	var result *multierror.Error
 	if len(b64Decode(registration.EncryptingKey)) != 32 {
 		result = multierror.Append(result, errors.New("encrypting public key missing or size incorrect"))
 	} else {
@@ -79,10 +90,5 @@ func validateDID(registration *Registration) error {
 			result = multierror.Append(result, errors.New("secret did not decrypt correctly"))
 		}
 	}
-
-	if result != nil {
-		result.ErrorFormat = formatErrors
-	}
-
-	return result.ErrorOrNil()
+	return result
 }

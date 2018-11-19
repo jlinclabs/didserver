@@ -8,13 +8,13 @@ import (
 	"golang.org/x/crypto/nacl/box"
 )
 
-func validIDFormat(id string) bool {
+func getValidID(id string) (string, bool) {
 	idParts := strings.Split(id, ":")
 	idRxp := regexp.MustCompile(`^[\w\-]+$`) //base64 string
 	if len(idParts) == 3 && idParts[0] == "did" && idParts[1] == "jlinc" && idRxp.MatchString(idParts[2]) {
-		return true
+		return idParts[2], true
 	}
-	return false
+	return "", false
 }
 
 func decryptRegSecret(c string, n string, pk string, sk string) ([]byte, bool) {
