@@ -52,7 +52,7 @@ func registerConfirm(w http.ResponseWriter, r *http.Request) {
 			challenge     string
 			signingPubkey string
 		)
-		DB.QueryRow("SELECT challenge, signing_pubkey from dids where id = $1", claims.ID).Scan(&challenge, &signingPubkey)
+		DB.QueryRow("SELECT challenge, signing_pubkey from didstore where id = $1", claims.ID).Scan(&challenge, &signingPubkey)
 
 		signedHashed := getHash(challenge)
 		sig := b64Decode(claims.Signature)
@@ -73,7 +73,7 @@ func registerConfirm(w http.ResponseWriter, r *http.Request) {
 
 	// everything checks, set DB status to verifed
 	didID := token.Claims.(*ConfirmClaims).ID
-	stmt, err := DB.Prepare(`UPDATE dids SET status = 'verified', modified = NOW() WHERE id = $1`)
+	stmt, err := DB.Prepare(`UPDATE didstore SET status = 'verified', modified = NOW() WHERE id = $1`)
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)

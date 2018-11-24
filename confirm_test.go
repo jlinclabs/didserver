@@ -29,7 +29,7 @@ func TestBadConfirm(t *testing.T) {
 	}
 
 	// enter test data in the DB
-	stmt, _ := DB.Prepare(`INSERT INTO dids (id,
+	stmt, _ := DB.Prepare(`INSERT INTO didstore (id,
                           root,
                           did,
                           signing_pubkey,
@@ -40,8 +40,7 @@ func TestBadConfirm(t *testing.T) {
                           challenge,
                           status,
                           superseded_by,
-                          superseded_at,
-                          created) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`)
+                          created) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`)
 	_, err = stmt.Exec("did:jlinc:wzMgVWGLmMfATuUFepismw9mYtItk4Kp-6rxvRAiRds",
 		"did:jlinc:wzMgVWGLmMfATuUFepismw9mYtItk4Kp-6rxvRAiRds",
 		`{"did":{"@context":"https://w3id.org/did/v1","created":"2018-11-16T00:58:15.687Z","id":"did:jlinc:wzMgVWGLmMfATuUFepismw9mYtItk4Kp-6rxvRAiRds","publicKey":[{"id":"did:jlinc:wzMgVWGLmMfATuUFepismw9mYtItk4Kp-6rxvRAiRds#signing","owner":"did:jlinc:wzMgVWGLmMfATuUFepismw9mYtItk4Kp-6rxvRAiRds","publicKeyBase64":"wzMgVWGLmMfATuUFepismw9mYtItk4Kp-6rxvRAiRds","type":"ed25519"},{"id":"did:jlinc:wzMgVWGLmMfATuUFepismw9mYtItk4Kp-6rxvRAiRds#encrypting","owner":"did:jlinc:wzMgVWGLmMfATuUFepismw9mYtItk4Kp-6rxvRAiRds","publicKeyBase64":"8FYOAkydAwZ7_klEb829AIJYbWWCxT7QSTyOseRk5FA","type":"curve25519"}]}}`,
@@ -52,7 +51,6 @@ func TestBadConfirm(t *testing.T) {
 		"MrtvpqD0gyowr4QsRMDFrIl8ImTMckKFLf4maANnIV8",
 		"93106678abb5e49c7c4f997a832e387d1ec2dc258c5301bc3f9b40d431b093bb",
 		"init",
-		"",
 		"",
 		"2018-11-16 00:58:15.707951+00:00")
 	if err != nil {
@@ -91,13 +89,13 @@ func TestBadConfirm(t *testing.T) {
 	// check that the DB record is not marked verified
 	var status string
 	expected = "init"
-	row := DB.QueryRow(fmt.Sprintf(`select status FROM dids WHERE id = '%s'`, didID))
+	row := DB.QueryRow(fmt.Sprintf(`select status FROM didstore WHERE id = '%s'`, didID))
 	err = row.Scan(&status)
 	if status != expected {
 		t.Errorf("database returned unexpected value: got %v want %v with error %v", status, expected, err)
 	}
 
-	stmt, _ = DB.Prepare("DELETE FROM dids WHERE id = $1")
+	stmt, _ = DB.Prepare("DELETE FROM didstore WHERE id = $1")
 	stmt.Exec(fmt.Sprintf("%s", didID))
 
 }
@@ -118,7 +116,7 @@ func TestGoodConfirm(t *testing.T) {
 	}
 
 	// enter test data in the DB
-	stmt, _ := DB.Prepare(`INSERT INTO dids (id,
+	stmt, _ := DB.Prepare(`INSERT INTO didstore (id,
 	                        root,
 	                        did,
 	                        signing_pubkey,
@@ -129,8 +127,7 @@ func TestGoodConfirm(t *testing.T) {
 	                        challenge,
 	                        status,
 	                        superseded_by,
-	                        superseded_at,
-	                        created) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`)
+	                        created) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`)
 	_, err = stmt.Exec("did:jlinc:wzMgVWGLmMfATuUFepismw9mYtItk4Kp-6rxvRAiRds",
 		"did:jlinc:wzMgVWGLmMfATuUFepismw9mYtItk4Kp-6rxvRAiRds",
 		`{"did":{"@context":"https://w3id.org/did/v1","created":"2018-11-16T00:58:15.687Z","id":"did:jlinc:wzMgVWGLmMfATuUFepismw9mYtItk4Kp-6rxvRAiRds","publicKey":[{"id":"did:jlinc:wzMgVWGLmMfATuUFepismw9mYtItk4Kp-6rxvRAiRds#signing","owner":"did:jlinc:wzMgVWGLmMfATuUFepismw9mYtItk4Kp-6rxvRAiRds","publicKeyBase64":"wzMgVWGLmMfATuUFepismw9mYtItk4Kp-6rxvRAiRds","type":"ed25519"},{"id":"did:jlinc:wzMgVWGLmMfATuUFepismw9mYtItk4Kp-6rxvRAiRds#encrypting","owner":"did:jlinc:wzMgVWGLmMfATuUFepismw9mYtItk4Kp-6rxvRAiRds","publicKeyBase64":"8FYOAkydAwZ7_klEb829AIJYbWWCxT7QSTyOseRk5FA","type":"curve25519"}]}}`,
@@ -141,7 +138,6 @@ func TestGoodConfirm(t *testing.T) {
 		"MrtvpqD0gyowr4QsRMDFrIl8ImTMckKFLf4maANnIV8",
 		"93106678abb5e49c7c4f997a832e387d1ec2dc258c5301bc3f9b40d431b093bb",
 		"init",
-		"",
 		"",
 		"2018-11-16 00:58:15.707951+00:00")
 	if err != nil {
@@ -179,13 +175,13 @@ func TestGoodConfirm(t *testing.T) {
 	// check that the DB record is now marked verified
 	var status string
 	expected = "verified"
-	row := DB.QueryRow(fmt.Sprintf(`select status FROM dids WHERE id = '%s'`, didID))
+	row := DB.QueryRow(fmt.Sprintf(`select status FROM didstore WHERE id = '%s'`, didID))
 	err = row.Scan(&status)
 	if status != expected {
 		t.Errorf("database returned unexpected value: got %v want %v with error %v", status, expected, err)
 	}
 
-	stmt, _ = DB.Prepare("DELETE FROM dids WHERE id = $1")
+	stmt, _ = DB.Prepare("DELETE FROM didstore WHERE id = $1")
 	stmt.Exec(fmt.Sprintf("%s", didID))
 
 }

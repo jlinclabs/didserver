@@ -5,7 +5,7 @@ import (
 )
 
 func recordDID(d *Registration) error {
-	stmt, err := DB.Prepare(`INSERT INTO dids(
+	stmt, err := DB.Prepare(`INSERT INTO didstore(
     id,
     root,
     did,
@@ -16,8 +16,8 @@ func recordDID(d *Registration) error {
     secret_master,
     challenge,
     status,
-    superseded_by,
-    superseded_at) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`)
+		supersedes,
+    superseded_by) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`)
 	if err != nil {
 		return err
 	}
@@ -35,8 +35,8 @@ func recordDID(d *Registration) error {
 		d.Secret.MasterKey,
 		d.Challenge,
 		d.Status,
-		d.SupersededBy,
-		d.SupersededAt)
+		d.Supersedes,
+		d.SupersededBy)
 	if err != nil {
 		return err
 	}

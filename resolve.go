@@ -18,7 +18,7 @@ func resolve(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	stmt, err := DB.Prepare("SELECT did, status FROM dids WHERE id = $1")
+	stmt, err := DB.Prepare("SELECT did, status FROM didstore WHERE id = $1")
 	defer stmt.Close()
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")

@@ -121,7 +121,7 @@ func TestGoodRegisterInput(t *testing.T) {
 	expectedRoot := "did:jlinc:UrbERsLcleNbYyh1LvWWci45q-gxUE-wPqnQfGN7eF8"
 	expectedStatus := "init"
 
-	row := DB.QueryRow("select id, root, did, status FROM dids ORDER BY created desc")
+	row := DB.QueryRow("select id, root, did, status FROM didstore ORDER BY created desc")
 	err = row.Scan(&id, &root, &did, &status)
 
 	// Unmarshal and re-Marshal the input and the DB's did value so they can be compared
@@ -145,7 +145,7 @@ func TestGoodRegisterInput(t *testing.T) {
 	}
 
 	// delete previous entries from the test database
-	stmt, _ := DB.Prepare("DELETE FROM dids WHERE status = $1")
+	stmt, _ := DB.Prepare("DELETE FROM didstore WHERE status = $1")
 	stmt.Exec("init")
 }
 
@@ -197,7 +197,7 @@ func TestExtendedRegisterInput(t *testing.T) {
 	expectedRoot := "did:jlinc:XzZ2-5f9o_lVXngwvUSN540ucbUeiyRWiHoMqZvTfpk"
 	expectedStatus := "init"
 
-	row := DB.QueryRow("select id, root, did, status FROM dids ORDER BY created desc")
+	row := DB.QueryRow("select id, root, did, status FROM didstore ORDER BY created desc")
 	err = row.Scan(&id, &root, &did, &status)
 
 	// Unmarshal and re-Marshal the input and the DB's did value so they can be compared
@@ -221,6 +221,6 @@ func TestExtendedRegisterInput(t *testing.T) {
 	}
 
 	// delete previous entries from the test database
-	stmt, _ := DB.Prepare("DELETE FROM dids WHERE status = $1")
+	stmt, _ := DB.Prepare("DELETE FROM didstore WHERE status = $1")
 	stmt.Exec("init")
 }

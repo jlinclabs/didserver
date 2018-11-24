@@ -17,8 +17,8 @@ type Registration struct {
 	EncryptingKey string
 	Raw           string
 	Root          string
+	Supersedes    string `json:"supersedes"`
 	SupersededBy  string
-	SupersededAt  string
 	Status        string
 }
 
