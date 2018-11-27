@@ -164,7 +164,7 @@ func TestGoodConfirm(t *testing.T) {
 	}
 
 	if status := rr.Code; status != http.StatusCreated {
-		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusCreated)
 	}
 
 	expected := fmt.Sprintf(`{"success":"true", "id":%q}`, didID)

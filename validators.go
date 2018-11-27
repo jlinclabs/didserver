@@ -70,7 +70,6 @@ func getRootJwtSecret(id string) (secret []byte, err error) {
 	if err != nil {
 		return nil, err
 	}
-	fmt.Printf("%q, %q, %q", cypher, nonce, encryptingPubkey)
 
 	secret, ok := decryptRegSecret(cypher, nonce, encryptingPubkey, Conf.Keys.Secret)
 	if !ok {
