@@ -202,13 +202,13 @@ func TestGoodSupersedeConfirm(t *testing.T) {
 		t.Errorf("handler returned unexpected body: want %s got %s", expected, rr.Body.String())
 	}
 
-	var status, supersededBy string
+	var status, supersedes, supersededBy string
 	expectedStatus := "verified"
 	// check that the superseder DB record is now marked verified
-	row := DB.QueryRow(fmt.Sprintf(`select status FROM didstore WHERE id = '%s'`, didID))
-	err = row.Scan(&status)
-	if status != expectedStatus {
-		t.Errorf("database returned unexpected value: got %v want %v with error %v", status, expectedStatus, err)
+	row := DB.QueryRow(fmt.Sprintf(`select status, supersedes FROM didstore WHERE id = '%s'`, didID))
+	err = row.Scan(&status, &supersedes)
+	if status != expectedStatus || supersedes != supersedesID {
+		t.Errorf("database returned unexpected value: got %v, %v want %v, %v with error %v", status, supersedes, expectedStatus, supersedesID, err)
 	}
 
 	// check that the supersedee DB record is correct
