@@ -1,6 +1,7 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"regexp"
 	"strings"
@@ -41,16 +42,19 @@ func decryptRegSecret(c string, n string, pk string, sk string) ([]byte, bool) {
 	return secret, ok
 }
 
-func getJwtSecret(id string) (secret []byte, err error) {
+func getJwtSecret(id string) ([]byte, error) {
 	var (
 		cypher           string
 		nonce            string
 		encryptingPubkey string
 	)
-	err = DB.QueryRow("SELECT secret_cypher, secret_nonce, encrypting_pubkey FROM didstore WHERE id = $1", id).Scan(&cypher, &nonce, &encryptingPubkey)
-	if err != nil {
+	err := DB.QueryRow("SELECT secret_cypher, secret_nonce, encrypting_pubkey FROM didstore WHERE id = $1", id).Scan(&cypher, &nonce, &encryptingPubkey)
+	if err == sql.ErrNoRows {
+		return nil, fmt.Errorf("DID does not exist")
+	} else if err != nil {
 		return nil, err
 	}
+
 	secret, ok := decryptRegSecret(cypher, nonce, encryptingPubkey, Conf.Keys.Secret)
 	if !ok {
 		return nil, fmt.Errorf("Unable to decrypt registration secret")
@@ -59,15 +63,17 @@ func getJwtSecret(id string) (secret []byte, err error) {
 	return secret, nil
 }
 
-func getRootJwtSecret(id string) (secret []byte, err error) {
+func getRootJwtSecret(id string) ([]byte, error) {
 	var (
 		cypher           string
 		nonce            string
 		encryptingPubkey string
 	)
 	// get the root record
-	err = DB.QueryRow("SELECT r.secret_cypher, r.secret_nonce, r.encrypting_pubkey FROM didstore AS s JOIN didstore AS r ON s.root = r.id WHERE s.id = $1", id).Scan(&cypher, &nonce, &encryptingPubkey)
-	if err != nil {
+	err := DB.QueryRow("SELECT r.secret_cypher, r.secret_nonce, r.encrypting_pubkey FROM didstore AS s JOIN didstore AS r ON s.root = r.id WHERE s.id = $1", id).Scan(&cypher, &nonce, &encryptingPubkey)
+	if err == sql.ErrNoRows {
+		return nil, fmt.Errorf("DID does not exist")
+	} else if err != nil {
 		return nil, err
 	}
 
