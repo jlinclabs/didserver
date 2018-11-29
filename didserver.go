@@ -55,11 +55,13 @@ func main() {
 	r.Use(middleware.Timeout(60 * time.Second))
 
 	r.Get("/", indexstr)
+	r.Get("/{DID}", resolve)
+
 	r.Post("/register", registerDID)
 	r.Post("/confirm", registerConfirm)
-	r.Get("/{DID}", resolve)
 	r.Post("/supersede", supersedeDID)
 	r.Post("/confirmSupersede", confirmSupersede)
+	r.Post("/revoke", revoke)
 
 	if _, err := toml.DecodeFile("./config.toml", &Conf); err != nil {
 		log.Fatal(err)
