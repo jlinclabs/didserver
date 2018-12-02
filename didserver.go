@@ -21,6 +21,7 @@ type Config struct {
 	Database database
 	Keys     keys
 	At       at
+	Root     root
 	IsTest   bool
 }
 
@@ -35,6 +36,10 @@ type keys struct {
 
 type at struct {
 	Context string `toml:"context"`
+}
+
+type root struct {
+	URL string `toml:"url"`
 }
 
 // Conf is a global configuration handle
@@ -56,6 +61,7 @@ func main() {
 
 	r.Get("/", indexstr)
 	r.Get("/{DID}", resolve)
+	r.Get("/history/{DID}", history)
 
 	r.Post("/register", registerDID)
 	r.Post("/confirm", registerConfirm)
