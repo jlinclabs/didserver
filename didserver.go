@@ -61,6 +61,7 @@ func main() {
 
 	r.Get("/", indexstr)
 	r.Get("/{DID}", resolve)
+	r.Get("/root/{DID}", resolveRoot)
 	r.Get("/history/{DID}", history)
 
 	r.Post("/register", registerDID)
