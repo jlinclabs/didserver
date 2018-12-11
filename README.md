@@ -6,23 +6,23 @@ A digitial identity server.
 
 
 ### Setup
-Install cockrach.
+Install cockroach.
 
 On Mac OS X:
 ```sh
 brew install cockroach
 ```
 
-### Make your `config.yoml`
+### Make your `config.toml`
 
 
 ```toml
 [database]
-connection_string = "postgres://localhost/did"
+connection_string = "postgres://root@localhost:26257/did?sslmode=disable"
 
 [keys]
-public = "aPublicKey"
-secret = "aSecretKey"
+public = "GET THIS KET IN THE NEXT STEP"
+secret = "GET THIS KET IN THE NEXT STEP"
 
 [at]
 context = "https://w3id.org/did/v1"
@@ -31,7 +31,7 @@ context = "https://w3id.org/did/v1"
 url = "http://localhost:5001"
 ```
 
-### Creating your server keys
+### Generate keys
 
 ```
 cd jlinc-did-client
