@@ -21,7 +21,7 @@ type Config struct {
 	Database database
 	Keys     keys
 	At       at
-	Root     root
+	App      app
 	IsTest   bool
 }
 
@@ -38,8 +38,9 @@ type at struct {
 	Context string `toml:"context"`
 }
 
-type root struct {
-	URL string `toml:"url"`
+type app struct {
+	URL  string `toml:"url"`
+	Port string `toml:"port"`
 }
 
 // Conf is a global configuration handle
@@ -86,7 +87,7 @@ func main() {
 	}
 
 	// Start the server
-	log.Fatal(http.ListenAndServe(":5001", r))
+	log.Fatal(http.ListenAndServe(Conf.App.Port, r))
 }
 
 // Index page

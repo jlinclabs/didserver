@@ -62,5 +62,5 @@ func getSupersededBy(root string) (last, url string) {
 	// use the root value to get the latest entry in the chain of DIDs with the same root
 	stmt, _ := DB.Prepare("SELECT id FROM didstore WHERE root = $1 ORDER BY created DESC LIMIT 1")
 	stmt.QueryRow(root).Scan(&last)
-	return last, fmt.Sprintf(`%s/%s`, Conf.Root.URL, last)
+	return last, fmt.Sprintf(`%s/%s`, Conf.App.URL, last)
 }
