@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+set -e
+
+DATABASE_NAME=`./scripts/db-name`
+
+cockroach sql \
+  --insecure \
+  --execute="DROP DATABASE IF EXISTS $DATABASE_NAME;" \
+;
