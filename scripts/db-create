@@ -7,9 +7,9 @@ DATABASE_NAME=`./scripts/db-name`
 cockroach sql \
   --insecure \
   --execute="
-    CREATE database $DATABASE_NAME;
+    CREATE database IF NOT EXISTS $DATABASE_NAME;
     SET database = $DATABASE_NAME;
-    CREATE TABLE didstore (
+    CREATE TABLE IF NOT EXISTS didstore (
       id STRING PRIMARY KEY,
       root STRING DEFAULT '',
       did STRING DEFAULT '',

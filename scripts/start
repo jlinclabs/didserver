@@ -32,7 +32,6 @@ url = "$URL"
 port = ":$PORT"
 END_OF_CONFIG
 
-
 if [[ "$OSTYPE" == "darwin"* ]]; then
   exec $ROOT/dist/mac/didserver
 else
