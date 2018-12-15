@@ -1,6 +1,37 @@
 #!/usr/bin/env bash
 
+set -e
+
 ROOT="$( cd "$( dirname "$0" )" && cd .. && pwd )"
+
+bail(){
+  echo $1 1>&2
+  exit 1
+}
+
+[[ $DATABASE_URL && ${DATABASE_URL-x} ]] || bail 'DATABASE_URL is required'
+[[ $URL && ${URL-x} ]] || bail 'URL is required'
+[[ $PORT && ${PORT-x} ]] || bail 'PORT is required'
+[[ $PUBLIC_KEY && ${PUBLIC_KEY-x} ]] || bail 'PUBLIC_KEY is required'
+[[ $PRIVATE_KEY && ${PRIVATE_KEY-x} ]] || bail 'PRIVATE_KEY is required'
+[[ $CONTEXT && ${CONTEXT-x} ]] || bail 'CONTEXT is required'
+
+cat <<END_OF_CONFIG > $ROOT/config.toml
+[database]
+connection_string = "$DATABASE_URL"
+
+[keys]
+public = "$PUBLIC_KEY"
+secret = "$PRIVATE_KEY"
+
+[at]
+context = "$CONTEXT"
+
+[app]
+url = "$URL"
+port = ":$PORT"
+END_OF_CONFIG
+
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
   exec $ROOT/dist/mac/didserver
