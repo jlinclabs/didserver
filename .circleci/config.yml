@@ -1,0 +1,52 @@
+# Javascript Node CircleCI 2.0 configuration file
+#
+# Check https://circleci.com/docs/2.0/language-javascript/ for more details
+#
+version: 2
+jobs:
+  build:
+    working_directory: ~/didserver
+
+    docker:
+      - image: circleci/golang:1.11
+        environment:
+        - DATABASE_URL: postgres://root@localhost:26257/did_test?sslmode=disable
+        - URL: http://localhost
+        - PORT: 5001
+        - PUBLIC_KEY: MrtvpqD0gyowr4QsRMDFrIl8ImTMckKFLf4maANnIV8
+        - PRIVATE_KEY: SAVhlYfH22S1yh360f__Di36qtaMYBnAJZPitvJFXms
+        - CONTEXT: https://w3id.org/did/v1
+
+
+    steps:
+      - checkout
+      - run: wget -qO- https://binaries.cockroachdb.com/cockroach-v2.1.2.linux-amd64.tgz | tar  xvz
+      - run: sudo cp -i cockroach-v2.1.2.linux-amd64/cockroach /usr/local/bin
+      - run:
+          name: start cockroach
+          command: cockroach start --insecure --listen-addr=localhost
+          background: true
+      - run: sleep .2
+      - run: scripts/test-setup
+
+      # Download and cache dependencies
+      - restore_cache:
+          keys:
+          - v1-pkg-cache
+
+      - run: go get github.com/BurntSushi/toml
+      - run: go get github.com/lib/pq
+      - run: go get github.com/dgrijalva/jwt-go
+      - run: go get golang.org/x/crypto/ed25519
+      - run: go get golang.org/x/crypto/nacl/box
+      - run: go get github.com/go-chi/chi
+      - run: go get github.com/go-chi/chi/middleware
+      - run: go get github.com/hashicorp/go-multierror
+
+      - save_cache:
+          paths:
+            - "/go/pkg"
+          key: v1-pkg-cache
+
+      # run tests!
+      - run: go test

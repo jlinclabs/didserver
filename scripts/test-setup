@@ -5,7 +5,7 @@ set -e
 ROOT="$( cd "$( dirname "$0" )" && cd .. && pwd )"
 
 bail(){
-  echo $1 1>&2
+  echo $1 1>&2;
   exit 1
 }
 
@@ -16,7 +16,7 @@ bail(){
 [[ $PRIVATE_KEY && ${PRIVATE_KEY-x} ]] || bail 'PRIVATE_KEY is required'
 [[ $CONTEXT && ${CONTEXT-x} ]] || bail 'CONTEXT is required'
 
-cat <<END_OF_CONFIG > $ROOT/config.toml
+cat <<END_OF_CONFIG > $ROOT/test.config.toml
 [database]
 connection_string = "$DATABASE_URL"
 
@@ -32,8 +32,4 @@ url = "$URL"
 port = ":$PORT"
 END_OF_CONFIG
 
-if [[ "$OSTYPE" == "darwin"* ]]; then
-  exec $ROOT/dist/mac/didserver
-else
-  exec $ROOT/dist/linux/didserver
-fi
+./scripts/db-create
