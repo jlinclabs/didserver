@@ -52,7 +52,7 @@ func revoke(w http.ResponseWriter, r *http.Request) {
 
 	// everything checks, set DB status to revoked
 	didID := token.Claims.(*ConfirmClaims).ID
-	stmt, err := DB.Prepare(`UPDATE didstore SET status = 'revoked', modified = NOW() WHERE id = $1`)
+	stmt, err := DB.Prepare(`UPDATE didstore SET status = 'revoked', modified = NOW() WHERE id = $1 AND status != 'superseded'`)
 	if err != nil {
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusInternalServerError)
