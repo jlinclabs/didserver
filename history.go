@@ -76,8 +76,8 @@ func history(w http.ResponseWriter, r *http.Request) {
 		historyResult.DID = raw.DID
 
 		switch instance.Status {
-		case "valid":
-			historyResult.Valid = instance.Created.Format(time.RFC3339)
+		case "verified":
+			historyResult.Valid = instance.Modified.Time.Format(time.RFC3339)
 		case "superseded":
 			if instance.Superseded.Valid {
 				historyResult.Superseded = instance.Superseded.Time.Format(time.RFC3339)
