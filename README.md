@@ -21,8 +21,8 @@ brew install cockroach
 connection_string = "postgres://root@localhost:26257/did?sslmode=disable"
 
 [keys]
-public = "GET THIS KET IN THE NEXT STEP"
-secret = "GET THIS KET IN THE NEXT STEP"
+public = "GET THIS KEY IN THE NEXT STEP"
+secret = "GET THIS KEY IN THE NEXT STEP"
 
 [at]
 context = "https://w3id.org/did/v1"
