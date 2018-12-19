@@ -27,8 +27,9 @@ secret = "GET THIS KEY IN THE NEXT STEP"
 [at]
 context = "https://w3id.org/did/v1"
 
-[root]
+[app]
 url = "http://localhost:5001"
+port = ":5001"
 ```
 
 ### Generate keys
