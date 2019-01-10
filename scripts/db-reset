@@ -2,5 +2,9 @@
 
 set -e
 
-./scripts/db-drop
-./scripts/db-create
+DATABASE_NAME=`./scripts/db-name`
+
+cockroach sql \
+  --insecure \
+  --execute="SET DATABASE = $DATABASE_NAME; TRUNCATE didstore CASCADE;" \
+;
