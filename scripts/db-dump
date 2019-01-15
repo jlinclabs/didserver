@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+set -e
+
+DATABASE_NAME=`./scripts/db-name`
+
+cockroach dump $DATABASE_NAME --insecure

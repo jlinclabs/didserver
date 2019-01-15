@@ -1,0 +1,16 @@
+#!/usr/bin/env bash
+
+bail(){
+  echo $1 1>&2;
+  exit 1
+}
+
+set -e
+cd "$( dirname "${BASH_SOURCE[0]}" )/.."
+
+[[ $DATABASE_URL && ${DATABASE_URL-x} ]] || bail 'DATABASE_URL is required'
+
+cat > ./tmp/db-dump.sql
+./scripts/db-drop
+./scripts/db-create
+psql $DATABASE_URL < ./tmp/db-dump.sql

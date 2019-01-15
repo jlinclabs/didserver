@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+cockroach sql --insecure --url $DATABASE_URL
