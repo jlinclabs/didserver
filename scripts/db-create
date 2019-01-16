@@ -2,31 +2,7 @@
 
 set -e
 
+cd "$( dirname "${BASH_SOURCE[0]}" )/.."
 DATABASE_NAME=`./scripts/db-name`
 
-cockroach sql \
-  --insecure \
-  --execute="
-    CREATE database $DATABASE_NAME;
-    SET database = $DATABASE_NAME;
-    CREATE TABLE didstore (
-      id STRING PRIMARY KEY,
-      root STRING DEFAULT '',
-      did STRING DEFAULT '',
-      signing_pubkey STRING DEFAULT '',
-      encrypting_pubkey STRING DEFAULT '',
-      secret_cypher STRING DEFAULT '',
-      secret_nonce STRING DEFAULT '',
-      secret_master STRING DEFAULT '',
-      challenge STRING DEFAULT '',
-      status STRING DEFAULT 'init',
-      supersedes STRING DEFAULT '',
-      superseded_by STRING DEFAULT '',
-      superseded_at TIMESTAMP,
-      created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-      modified TIMESTAMP,
-      INDEX (root),
-      INDEX (superseded_by)
-    );
-  " \
-;
+createdb --echo $DATABASE_NAME

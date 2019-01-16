@@ -1,10 +1,15 @@
 #!/usr/bin/env bash
 
+set -e
+
+cd "$( dirname "${BASH_SOURCE[0]}" )/.."
+DATABASE_URL=`./scripts/db-url`
+
 bail(){
   echo $1 1>&2;
   exit 1
 }
-[[ $DATABASE_URL && ${DATABASE_URL-x} ]] || bail 'DATABASE_URL is required'
+
 DATABASE_NAME=$(echo $DATABASE_URL | cut -d'/' -f4 | cut -d'?' -f1)
 [[ $DATABASE_NAME && ${DATABASE_NAME-x} ]] || bail 'unable to derive DATABASE_NAME from DATABASE_URL'
 echo $DATABASE_NAME

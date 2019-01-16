@@ -2,6 +2,8 @@
 
 set -e
 
-DATABASE_NAME=`./scripts/db-name`
+cd "$( dirname "${BASH_SOURCE[0]}" )/.."
+DATABASE_URL=`./scripts/db-url`
 
-cockroach dump $DATABASE_NAME --insecure
+pg_dump --no-privileges --no-owner --no-reconnect --dbname=$DATABASE_URL
+

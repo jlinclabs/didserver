@@ -2,9 +2,7 @@
 
 set -e
 
+cd "$( dirname "${BASH_SOURCE[0]}" )/.."
 DATABASE_NAME=`./scripts/db-name`
 
-cockroach sql \
-  --insecure \
-  --execute="DROP DATABASE IF EXISTS $DATABASE_NAME;" \
-;
+dropdb --if-exists $DATABASE_NAME

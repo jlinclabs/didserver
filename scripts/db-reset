@@ -2,9 +2,7 @@
 
 set -e
 
+cd "$( dirname "${BASH_SOURCE[0]}" )/.."
 DATABASE_NAME=`./scripts/db-name`
 
-cockroach sql \
-  --insecure \
-  --execute="SET DATABASE = $DATABASE_NAME; TRUNCATE didstore CASCADE;" \
-;
+psql $DATABASE_NAME --command="TRUNCATE didstore;"

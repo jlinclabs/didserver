@@ -1,0 +1,28 @@
+#!/usr/bin/env bash
+
+set -e
+
+cd "$( dirname "${BASH_SOURCE[0]}" )/.."
+DATABASE_URL=`./scripts/db-url`
+
+psql $DATABASE_URL --command="
+  CREATE TABLE IF NOT EXISTS didstore (
+    id text PRIMARY KEY,
+    root text DEFAULT '',
+    did text DEFAULT '',
+    signing_pubkey text DEFAULT '',
+    encrypting_pubkey text DEFAULT '',
+    secret_cypher text DEFAULT '',
+    secret_nonce text DEFAULT '',
+    secret_master text DEFAULT '',
+    challenge text DEFAULT '',
+    status text DEFAULT 'init',
+    supersedes text DEFAULT '',
+    superseded_by text DEFAULT '',
+    superseded_at timestamp,
+    created timestamp DEFAULT current_timestamp,
+    modified timestamp
+  );
+  CREATE INDEX ON didstore (root);
+  CREATE INDEX ON didstore (superseded_by);
+"

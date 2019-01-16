@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+cd "$( dirname "${BASH_SOURCE[0]}" )/.."
+
+bail(){
+  echo $1 1>&2;
+  exit 1
+}
+[[ $DATABASE_URL && ${DATABASE_URL-x} ]] || bail '$DATABASE_URL is not set'
+echo $DATABASE_URL
