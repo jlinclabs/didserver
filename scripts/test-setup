@@ -2,6 +2,8 @@
 
 set -e
 
+cd "$( dirname "${BASH_SOURCE[0]}" )/.."
+
 ROOT="$( cd "$( dirname "$0" )" && cd .. && pwd )"
 
 bail(){
@@ -15,6 +17,19 @@ bail(){
 [[ $PUBLIC_KEY && ${PUBLIC_KEY-x} ]] || bail 'PUBLIC_KEY is required'
 [[ $PRIVATE_KEY && ${PRIVATE_KEY-x} ]] || bail 'PRIVATE_KEY is required'
 [[ $CONTEXT && ${CONTEXT-x} ]] || bail 'CONTEXT is required'
+
+set -x
+
+go get github.com/BurntSushi/toml
+go get github.com/lib/pq
+go get github.com/dgrijalva/jwt-go
+go get golang.org/x/crypto/ed25519
+go get golang.org/x/crypto/nacl/box
+go get github.com/go-chi/chi
+go get github.com/go-chi/chi/middleware
+go get github.com/hashicorp/go-multierror
+
+set +x
 
 cat <<END_OF_CONFIG > $ROOT/test.config.toml
 [database]
@@ -32,4 +47,4 @@ url = "$URL"
 port = ":$PORT"
 END_OF_CONFIG
 
-./scripts/db-create
+./scripts/db-setup
