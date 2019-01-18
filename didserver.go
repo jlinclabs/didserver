@@ -22,6 +22,7 @@ type Config struct {
 	Keys     keys
 	At       at
 	App      app
+	APIAuth  map[string]string `toml:"api_auth"`
 	IsTest   bool
 }
 
@@ -67,6 +68,7 @@ func main() {
 
 	r.Post("/register", registerDID)
 	r.Post("/confirm", registerConfirm)
+	r.Post("/agentRegister", agentRegister)
 	r.Post("/supersede", supersedeDID)
 	r.Post("/confirmSupersede", confirmSupersede)
 	r.Post("/revoke", revoke)
@@ -82,6 +84,11 @@ func main() {
 	DB, err = sql.Open("postgres", connStr)
 	defer DB.Close()
 	if err != nil {
+		log.Fatal(err)
+		return
+	}
+
+	if err := DB.Ping(); err != nil {
 		log.Fatal(err)
 		return
 	}
