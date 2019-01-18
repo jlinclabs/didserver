@@ -29,7 +29,7 @@ func TestBadSupersedeConfirm(t *testing.T) {
 	}
 
 	// enter supersedee data in the DB
-	stmt, _ := DB.Prepare(`INSERT INTO didstore (id,
+	stmt, err := DB.Prepare(`INSERT INTO didstore (id,
                                               root,
                                               signing_pubkey,
                                               encrypting_pubkey,
@@ -37,6 +37,10 @@ func TestBadSupersedeConfirm(t *testing.T) {
                                               secret_nonce,
                                               challenge,
                                               status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
 	_, err = stmt.Exec("did:jlinc:xsavxziATze7ycvEqFJuWp7u7J2M_AUWiQcRFs8EAZI",
 		"did:jlinc:xsavxziATze7ycvEqFJuWp7u7J2M_AUWiQcRFs8EAZI",
 		"xsavxziATze7ycvEqFJuWp7u7J2M_AUWiQcRFs8EAZI",
@@ -135,7 +139,7 @@ func TestGoodSupersedeConfirm(t *testing.T) {
 	}
 
 	// enter supersedee data in the DB
-	stmt, _ := DB.Prepare(`INSERT INTO didstore (id,
+	stmt, err := DB.Prepare(`INSERT INTO didstore (id,
                                               root,
                                               signing_pubkey,
                                               encrypting_pubkey,
@@ -143,6 +147,10 @@ func TestGoodSupersedeConfirm(t *testing.T) {
                                               secret_nonce,
                                               challenge,
                                               status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
 	_, err = stmt.Exec("did:jlinc:xsavxziATze7ycvEqFJuWp7u7J2M_AUWiQcRFs8EAZI",
 		"did:jlinc:xsavxziATze7ycvEqFJuWp7u7J2M_AUWiQcRFs8EAZI",
 		"xsavxziATze7ycvEqFJuWp7u7J2M_AUWiQcRFs8EAZI",

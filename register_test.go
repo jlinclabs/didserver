@@ -145,7 +145,11 @@ func TestGoodRegisterInput(t *testing.T) {
 	}
 
 	// delete previous entries from the test database
-	stmt, _ := DB.Prepare("DELETE FROM didstore WHERE status = $1")
+	stmt, err := DB.Prepare("DELETE FROM didstore WHERE status = $1")
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
 	stmt.Exec("init")
 }
 
@@ -221,6 +225,10 @@ func TestExtendedRegisterInput(t *testing.T) {
 	}
 
 	// delete previous entries from the test database
-	stmt, _ := DB.Prepare("DELETE FROM didstore WHERE status = $1")
+	stmt, err := DB.Prepare("DELETE FROM didstore WHERE status = $1")
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
 	stmt.Exec("init")
 }

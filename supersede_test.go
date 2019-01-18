@@ -59,7 +59,7 @@ func TestBadSupersedeNoSupersedee(t *testing.T) {
 	Conf.IsTest = true //so it doesn't test the timestamp
 
 	// enter test data in the DB
-	stmt, _ := DB.Prepare(`INSERT INTO didstore (id,
+	stmt, err := DB.Prepare(`INSERT INTO didstore (id,
                                               root,
                                               signing_pubkey,
                                               encrypting_pubkey,
@@ -67,6 +67,10 @@ func TestBadSupersedeNoSupersedee(t *testing.T) {
                                               secret_nonce,
                                               challenge,
                                               status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
 	_, err = stmt.Exec("did:jlinc:31UiO0CMrGLoAQ35A25dg7zQb3uCkSkpj87gdRD9H5w",
 		"did:jlinc:31UiO0CMrGLoAQ35A25dg7zQb3uCkSkpj87gdRD9H5w",
 		"xsavxziATze7ycvEqFJuWp7u7J2M_AUWiQcRFs8EAZI",
@@ -127,7 +131,7 @@ func TestBadSupersedeStatus(t *testing.T) {
 	Conf.IsTest = true //so it doesn't test the timestamp
 
 	// enter test data in the DB
-	stmt, _ := DB.Prepare(`INSERT INTO didstore (id,
+	stmt, err := DB.Prepare(`INSERT INTO didstore (id,
                                               root,
                                               signing_pubkey,
                                               encrypting_pubkey,
@@ -135,6 +139,10 @@ func TestBadSupersedeStatus(t *testing.T) {
                                               secret_nonce,
                                               challenge,
                                               status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
 	_, err = stmt.Exec("did:jlinc:xsavxziATze7ycvEqFJuWp7u7J2M_AUWiQcRFs8EAZI",
 		"did:jlinc:xsavxziATze7ycvEqFJuWp7u7J2M_AUWiQcRFs8EAZI",
 		"xsavxziATze7ycvEqFJuWp7u7J2M_AUWiQcRFs8EAZI",
@@ -195,7 +203,7 @@ func TestGoodSupersedeInput(t *testing.T) {
 	Conf.IsTest = true //so it doesn't test the timestamp
 
 	// enter test data in the DB
-	stmt, _ := DB.Prepare(`INSERT INTO didstore (id,
+	stmt, err := DB.Prepare(`INSERT INTO didstore (id,
                                               root,
                                               signing_pubkey,
                                               encrypting_pubkey,
@@ -203,6 +211,10 @@ func TestGoodSupersedeInput(t *testing.T) {
                                               secret_nonce,
                                               challenge,
                                               status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
 	_, err = stmt.Exec("did:jlinc:xsavxziATze7ycvEqFJuWp7u7J2M_AUWiQcRFs8EAZI",
 		"did:jlinc:xsavxziATze7ycvEqFJuWp7u7J2M_AUWiQcRFs8EAZI",
 		"xsavxziATze7ycvEqFJuWp7u7J2M_AUWiQcRFs8EAZI",

@@ -29,7 +29,7 @@ func TestBadConfirm(t *testing.T) {
 	}
 
 	// enter test data in the DB
-	stmt, _ := DB.Prepare(`INSERT INTO didstore (id,
+	stmt, err := DB.Prepare(`INSERT INTO didstore (id,
                           root,
                           did,
                           signing_pubkey,
@@ -41,6 +41,10 @@ func TestBadConfirm(t *testing.T) {
                           status,
                           superseded_by,
                           created) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
 	_, err = stmt.Exec("did:jlinc:wzMgVWGLmMfATuUFepismw9mYtItk4Kp-6rxvRAiRds",
 		"did:jlinc:wzMgVWGLmMfATuUFepismw9mYtItk4Kp-6rxvRAiRds",
 		`{"did":{"@context":"https://w3id.org/did/v1","created":"2018-11-16T00:58:15.687Z","id":"did:jlinc:wzMgVWGLmMfATuUFepismw9mYtItk4Kp-6rxvRAiRds","publicKey":[{"id":"did:jlinc:wzMgVWGLmMfATuUFepismw9mYtItk4Kp-6rxvRAiRds#signing","owner":"did:jlinc:wzMgVWGLmMfATuUFepismw9mYtItk4Kp-6rxvRAiRds","publicKeyBase64":"wzMgVWGLmMfATuUFepismw9mYtItk4Kp-6rxvRAiRds","type":"ed25519"},{"id":"did:jlinc:wzMgVWGLmMfATuUFepismw9mYtItk4Kp-6rxvRAiRds#encrypting","owner":"did:jlinc:wzMgVWGLmMfATuUFepismw9mYtItk4Kp-6rxvRAiRds","publicKeyBase64":"8FYOAkydAwZ7_klEb829AIJYbWWCxT7QSTyOseRk5FA","type":"curve25519"}]}}`,
@@ -116,7 +120,7 @@ func TestGoodConfirm(t *testing.T) {
 	}
 
 	// enter test data in the DB
-	stmt, _ := DB.Prepare(`INSERT INTO didstore (id,
+	stmt, err := DB.Prepare(`INSERT INTO didstore (id,
 	                        root,
 	                        did,
 	                        signing_pubkey,
@@ -128,6 +132,10 @@ func TestGoodConfirm(t *testing.T) {
 	                        status,
 	                        superseded_by,
 	                        created) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
 	_, err = stmt.Exec("did:jlinc:wzMgVWGLmMfATuUFepismw9mYtItk4Kp-6rxvRAiRds",
 		"did:jlinc:wzMgVWGLmMfATuUFepismw9mYtItk4Kp-6rxvRAiRds",
 		`{"did":{"@context":"https://w3id.org/did/v1","created":"2018-11-16T00:58:15.687Z","id":"did:jlinc:wzMgVWGLmMfATuUFepismw9mYtItk4Kp-6rxvRAiRds","publicKey":[{"id":"did:jlinc:wzMgVWGLmMfATuUFepismw9mYtItk4Kp-6rxvRAiRds#signing","owner":"did:jlinc:wzMgVWGLmMfATuUFepismw9mYtItk4Kp-6rxvRAiRds","publicKeyBase64":"wzMgVWGLmMfATuUFepismw9mYtItk4Kp-6rxvRAiRds","type":"ed25519"},{"id":"did:jlinc:wzMgVWGLmMfATuUFepismw9mYtItk4Kp-6rxvRAiRds#encrypting","owner":"did:jlinc:wzMgVWGLmMfATuUFepismw9mYtItk4Kp-6rxvRAiRds","publicKeyBase64":"8FYOAkydAwZ7_klEb829AIJYbWWCxT7QSTyOseRk5FA","type":"curve25519"}]}}`,
