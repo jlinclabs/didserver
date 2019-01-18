@@ -1,5 +1,5 @@
 [database]
-connection_string = "postgres://root@localhost:26257/did?sslmode=disable"
+connection_string = "postgres://user@localhost:5432/did?sslmode=disable"
 
 [keys]
 public = "aPublicKey"
