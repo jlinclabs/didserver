@@ -71,7 +71,7 @@ func supersedeDID(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusInternalServerError)
 		fmt.Fprintf(w, `{"success":"false", "error":"database error-q"`)
 		return
-	case status != "verified": //success
+	case status != "verified": //must be an active DID
 		w.Header().Set("Content-Type", "application/json")
 		w.WriteHeader(http.StatusConflict)
 		w.Write([]byte(`{"status":"item to supersede not active"}`))
