@@ -19,13 +19,13 @@ func validateDIDparams(registration *Registration) *multierror.Error {
 		result = multierror.Append(result, errors.New("id must be did:jlinc:{base64 encoded string}"))
 	}
 
-	// check the timestamp
-	t, err := time.Parse(time.RFC3339, registration.DID.CreatedAt)
-	if err != nil {
-		result = multierror.Append(result, errors.New("created must be in valid RFC3339 format"))
-	}
-	// we'll allow the timestamp to be from 10 minutes before now (for latency) to 1 minute after now (for clock error)
+	// check the timestamp as long as Conf.IsTest is not true
 	if !Conf.IsTest {
+		t, err := time.Parse(time.RFC3339, registration.DID.CreatedAt)
+		if err != nil {
+			result = multierror.Append(result, errors.New("created must be in valid RFC3339 format"))
+		}
+		// we'll allow the timestamp to be from 10 minutes before now (for latency) to 1 minute after now (for clock error)
 		if time.Since(t) > time.Minute*10 || time.Until(t) > time.Minute {
 			result = multierror.Append(result, errors.New("DID timestamp is out of bounds"))
 		}

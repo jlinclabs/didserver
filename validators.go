@@ -84,3 +84,11 @@ func getRootJwtSecret(id string) ([]byte, error) {
 
 	return secret, nil
 }
+
+func apiAuthSecret(agentkey string) ([]byte, error) {
+	secret, ok := Conf.APIAuth[agentkey]
+	if !ok {
+		return nil, fmt.Errorf("agentkey not found")
+	}
+	return []byte(secret), nil
+}

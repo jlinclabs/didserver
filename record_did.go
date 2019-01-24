@@ -16,8 +16,9 @@ func recordDID(d *Registration) error {
     secret_master,
     challenge,
     status,
+		agent_id,
 		supersedes,
-    superseded_by) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)`)
+    superseded_by) VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)`)
 	if err != nil {
 		return err
 	}
@@ -35,6 +36,7 @@ func recordDID(d *Registration) error {
 		d.Secret.MasterKey,
 		d.Challenge,
 		d.Status,
+		d.AgentID,
 		d.Supersedes,
 		d.SupersededBy)
 	if err != nil {

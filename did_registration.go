@@ -20,6 +20,7 @@ type Registration struct {
 	Supersedes    string `json:"supersedes"`
 	SupersededBy  string
 	Status        string
+	AgentID       string
 }
 
 type secret struct {

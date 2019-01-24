@@ -17,6 +17,7 @@ psql $DATABASE_URL --command="
     secret_master text DEFAULT '',
     challenge text DEFAULT '',
     status text DEFAULT 'init',
+    agent_id text DEFAULT '',
     supersedes text DEFAULT '',
     superseded_by text DEFAULT '',
     superseded_at timestamp,

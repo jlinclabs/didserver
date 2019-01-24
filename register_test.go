@@ -48,6 +48,8 @@ func TestBadRegisterInput(t *testing.T) {
 		return
 	}
 
+	Conf.IsTest = true //so it doesn't test the timestamp
+
 	input := strings.NewReader(`{"did":{"@context":"https://w3id.org/did/v2","id":"did:jlincz:3Cza_sxboNZ_NajNVOrEH7YKPRQoD-PK7nq6nhgMy18","created":"2018-11-10T03:10:02.246Z","publicKey":[{"id":"did:jlinc:3Cza_sxboNZ_NajNVOrEH7YKPRQoD-PK7nq6nhgMy18#signing","type":"ed25519","owner":"did:jlinc:3Cza_sxboNZ_NajNVOrEH7YKPRQoD-PK7nq6nhgMy18","publicKeyBase64":"3Cza_sxboNZ_NajNVOrEH7YKPRQoD-PK7nq6nhgMy18"},{"id":"did:jlinc:3Cza_sxboNZ_NajNVOrEH7YKPRQoD-PK7nq6nhgMy18#encrypting","type":"curve25519","owner":"did:jlinc:3Cza_sxboNZ_NajNVOrEH7YKPRQoD-PK7nq6nhgMy18","publicKeyBase64":"GoRPEyMUoWGsPbWFcW7ivHsa-rzc91Kt279NEZrN4Fs"}]},"secret":{"cyphertext":"AAAAAAAAAAAAAAAAAAAAAAsECGk8sIPsxbHhkOMjmkakzTAbk-h8GaExILc2OJmn246Xj_NWYr6qGE95RLD_84VQOiWG_IEUc9hudnIhDbft5G8kxuKRDYlttfP5o95Z","nonce":"NEgURTnb869n60E7l6dUI5hw0S4Q4eaH"},"signature":"zznHMhSYRF_gCLVCnuA9ue1HMcC6g1jLf-vnO4wRlPW3c1FJKvXvTaFjo2BH_4wCyuDmstXNGk7A0xTXGPu1CQ"}`)
 
 	req, err := http.NewRequest("POST", "/register", input)
@@ -68,7 +70,7 @@ func TestBadRegisterInput(t *testing.T) {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusBadRequest)
 	}
 
-	expected := `{"success":false,"error":"request contained 7 errors: @context missing or incorrect, id must be did:jlinc:{base64 encoded string}, DID timestamp is out of bounds, Signing key owner incorrect, Encrypting key owner incorrect, signature did not verify, secret did not decrypt correctly"}`
+	expected := `{"success":false,"error":"request contained 6 errors: @context missing or incorrect, id must be did:jlinc:{base64 encoded string}, Signing key owner incorrect, Encrypting key owner incorrect, signature did not verify, secret did not decrypt correctly"}`
 	if rr.Body.String() != expected {
 		t.Errorf("handler returned unexpected body: got %v want %v", rr.Body.String(), expected)
 	}
