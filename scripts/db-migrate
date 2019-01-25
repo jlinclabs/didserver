@@ -3,9 +3,9 @@
 set -e
 
 cd "$( dirname "${BASH_SOURCE[0]}" )/.."
-DATABASE_URL=`./scripts/db-url`
+DATABASE_NAME=`./scripts/db-name`
 
-psql $DATABASE_URL --command="
+psql $DATABASE_NAME --command="
   CREATE TABLE IF NOT EXISTS didstore (
     id text PRIMARY KEY,
     root text DEFAULT '',
