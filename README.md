@@ -1,16 +1,16 @@
 # DID Server
 
-A digitial identity server.
+A digital identity server.
 
 ## Development
 
 
 ### Setup
-Install cockroach.
+Install postgresql 9.6 or higher.
 
 On Mac OS X:
 ```sh
-brew install cockroach
+brew install postgresql@9.6
 ```
 
 ### Make your `config.toml`
@@ -18,7 +18,7 @@ brew install cockroach
 
 ```toml
 [database]
-connection_string = "postgres://root@localhost:26257/did?sslmode=disable"
+connection_string = "postgres://localhost:5432/did?sslmode=disable"
 
 [keys]
 public = "GET THIS KEY IN THE NEXT STEP"
@@ -30,6 +30,10 @@ context = "https://w3id.org/did/v1"
 [app]
 url = "http://localhost:5001"
 port = ":5001"
+
+[api_auth] # apiKey = apiSecret -- these are test values:
+"74fb5cf4f8ce852e143e2859d61b7df5c6572edbbb580e71395d3266506face7" = "809d311ff23626ddf58297f3322f84ec2b0cedf1b2a38b3d456b39298db61820"
+
 ```
 
 ### Generate keys
@@ -45,34 +49,35 @@ copy // encryptingPublicKey and encryptingPrivateKey
 ### Starting the SQL Commandline
 
 ```sh
-cockroach sql --insecure
+psql postgres
 ```
 
 #### Manually initialize the database
 
 ```sql
 CREATE database did;
-SET database = did;
+\c did
 
-CREATE TABLE didstore (
-  id STRING PRIMARY KEY,
-  root STRING DEFAULT '',
-  did STRING DEFAULT '',
-  signing_pubkey STRING DEFAULT '',
-  encrypting_pubkey STRING DEFAULT '',
-  secret_cypher STRING DEFAULT '',
-  secret_nonce STRING DEFAULT '',
-  secret_master STRING DEFAULT '',
-  challenge STRING DEFAULT '',
-  status STRING DEFAULT 'init',
-  supersedes STRING DEFAULT '',
-  superseded_by STRING DEFAULT '',
-  superseded_at TIMESTAMP,
-  created TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-  modified TIMESTAMP,
-  INDEX (root),
-  INDEX (superseded_by)
+CREATE TABLE IF NOT EXISTS didstore (
+  id text PRIMARY KEY,
+  root text DEFAULT '',
+  did text DEFAULT '',
+  signing_pubkey text DEFAULT '',
+  encrypting_pubkey text DEFAULT '',
+  secret_cypher text DEFAULT '',
+  secret_nonce text DEFAULT '',
+  secret_master text DEFAULT '',
+  challenge text DEFAULT '',
+  status text DEFAULT 'init',
+  agent_id text DEFAULT '',
+  supersedes text DEFAULT '',
+  superseded_by text DEFAULT '',
+  superseded_at timestamp,
+  created timestamp DEFAULT current_timestamp,
+  modified timestamp
 );
+CREATE INDEX ON didstore (root);
+CREATE INDEX ON didstore (superseded_by);
 ```
 
 ### Creating a key pair
