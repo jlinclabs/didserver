@@ -2,7 +2,6 @@
 tmp
 config.toml
 test.config.toml
-migrations
 ansible_files
 .*.env
 .node-version
