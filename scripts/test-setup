@@ -45,6 +45,9 @@ context = "$CONTEXT"
 [app]
 url = "$URL"
 port = ":$PORT"
+
+[api_auth]
+"74fb5cf4f8ce852e143e2859d61b7df5c6572edbbb580e71395d3266506face7" = "809d311ff23626ddf58297f3322f84ec2b0cedf1b2a38b3d456b39298db61820"
 END_OF_CONFIG
 
 ./scripts/db-setup

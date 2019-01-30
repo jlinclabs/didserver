@@ -29,4 +29,4 @@ jobs:
       - checkout
       - run: scripts/test-setup
       - run: cat test.config.toml
-      - run: go test
+      - run: scripts/test
