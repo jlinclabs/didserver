@@ -189,7 +189,23 @@ func TestGoodConfirm(t *testing.T) {
 		t.Errorf("database returned unexpected value: got %v want %v with error %v", status, expected, err)
 	}
 
+	// check that the chainlink has been created
+	var chainid string
+	expected = didID
+	row = DB.QueryRow(fmt.Sprintf(`select id FROM chainlinks WHERE id = '%s'`, didID))
+	err = row.Scan(&chainid)
+	if chainid != expected {
+		t.Errorf("chainlinks returned unexpected value: got %v want %v with error %v", chainid, expected, err)
+	}
+
 	stmt, _ = DB.Prepare("DELETE FROM didstore WHERE id = $1")
+	stmt.Exec(fmt.Sprintf("%s", didID))
+
+	stmt, err = DB.Prepare("DELETE FROM chainlinks WHERE id = $1")
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
 	stmt.Exec(fmt.Sprintf("%s", didID))
 
 }

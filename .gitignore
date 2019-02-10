@@ -5,3 +5,4 @@ test.config.toml
 ansible_files
 .*.env
 .node-version
+*.log

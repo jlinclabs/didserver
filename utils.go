@@ -64,6 +64,12 @@ func getHash(j string) []byte {
 	return h.Sum(nil)
 }
 
+func getByteHash(j []byte) []byte {
+	h := sha256.New()
+	h.Write(j)
+	return h.Sum(nil)
+}
+
 func b64Decode(s string) []byte {
 	decoded, _ := base64.RawURLEncoding.DecodeString(s)
 	return decoded

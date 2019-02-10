@@ -45,14 +45,15 @@ func registerConfirm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	var (
+		challenge     string
+		signingPubkey string
+		DIDstring     string
+	)
 	// check that the JWT is valid
 	if claims, ok := token.Claims.(*ConfirmClaims); ok && token.Valid {
 		// then check that the signature is correct
-		var (
-			challenge     string
-			signingPubkey string
-		)
-		DB.QueryRow("SELECT challenge, signing_pubkey from didstore where id = $1", claims.ID).Scan(&challenge, &signingPubkey)
+		DB.QueryRow("SELECT challenge, signing_pubkey, did from didstore where id = $1", claims.ID).Scan(&challenge, &signingPubkey, &DIDstring)
 
 		signedHashed := getHash(challenge)
 		sig := b64Decode(claims.Signature)
@@ -90,6 +91,9 @@ func registerConfirm(w http.ResponseWriter, r *http.Request) {
 		fmt.Fprintf(w, `{"success":"false", "error":"database error-e"`)
 		return
 	}
+
+	// record the chainlink
+	addChainlink(didID, DIDstring)
 
 	// return success
 	w.Header().Set("Content-Type", "application/json")

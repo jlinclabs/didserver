@@ -110,6 +110,9 @@ func agentRegister(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	// record the chainlink
+	addChainlink(registration.DID.ID, registration.Raw)
+
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	fmt.Fprintf(w, `{"success":"true", "id":%q}`, registration.DID.ID)
