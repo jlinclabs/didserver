@@ -3,7 +3,6 @@ package main
 import (
 	"database/sql"
 	"encoding/json"
-	"fmt"
 	"log"
 	"net/http"
 	"net/http/httptest"
@@ -177,15 +176,6 @@ func TestGoodAgentRegisterInput(t *testing.T) {
 		t.Errorf("database returned unexpected value(s): got %q, %q, %q want %q, %q, %q with error %v", id, root, status, expectedID, expectedRoot, expectedStatus, err)
 	}
 
-	// check that the chainlink has been created
-	var chainid string
-	expected := id
-	row = DB.QueryRow(fmt.Sprintf(`select id FROM chainlinks WHERE id = '%s'`, id))
-	err = row.Scan(&chainid)
-	if chainid != expected {
-		t.Errorf("chainlinks returned unexpected value: got %v want %v with error %v", chainid, expected, err)
-	}
-
 	// delete previous entries from the test database
 	stmt, err := DB.Prepare("DELETE FROM didstore")
 	if err != nil {
@@ -193,11 +183,4 @@ func TestGoodAgentRegisterInput(t *testing.T) {
 		return
 	}
 	stmt.Exec()
-
-	stmt, err = DB.Prepare("DELETE FROM chainlinks WHERE id = $1")
-	if err != nil {
-		log.Fatal(err)
-		return
-	}
-	stmt.Exec("did:jlinc:yBTWg7R0YQ9XkTu_0-peO2USgjFgYpMTSD2AlUYSTHI")
 }

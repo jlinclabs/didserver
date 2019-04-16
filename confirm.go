@@ -92,9 +92,6 @@ func registerConfirm(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// record the chainlink
-	addChainlink(didID, DIDstring)
-
 	// return success
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
