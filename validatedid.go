@@ -11,7 +11,7 @@ import (
 
 func validateDIDparams(registration *Registration) *multierror.Error {
 	var result *multierror.Error
-	if registration.DID.AtContext != Conf.At.Context {
+	if checkAtContext(registration.DID.AtContext) < 1 {
 		result = multierror.Append(result, errors.New("@context missing or incorrect"))
 	}
 
@@ -38,24 +38,49 @@ func getDIDkeys(registration *Registration) *multierror.Error {
 	var result *multierror.Error
 	for _, key := range registration.DID.PublicKeys {
 		idParts := strings.Split(key.ID, "#")
-		if len(idParts) > 1 {
-			if idParts[1] == "signing" {
-				if key.Owner != registration.DID.ID {
-					result = multierror.Append(result, errors.New("Signing key owner incorrect"))
+		contextVersion := checkAtContext(registration.DID.AtContext)
+		if contextVersion == 1 {
+			if len(idParts) > 1 {
+				if idParts[1] == "signing" {
+					if key.Owner != registration.DID.ID {
+						result = multierror.Append(result, errors.New("Signing key owner incorrect"))
+					}
+					if key.Type != "ed25519" {
+						result = multierror.Append(result, errors.New("Signing key type incorrect"))
+					}
+					registration.SigningKey = key.PublicKeyBase64
 				}
-				if key.Type != "ed25519" {
-					result = multierror.Append(result, errors.New("Signing key type incorrect"))
+				if idParts[1] == "encrypting" {
+					if key.Owner != registration.DID.ID {
+						result = multierror.Append(result, errors.New("Encrypting key owner incorrect"))
+					}
+					if key.Type != "curve25519" {
+						result = multierror.Append(result, errors.New("Encrypting key type incorrect"))
+					}
+					registration.EncryptingKey = key.PublicKeyBase64
 				}
-				registration.SigningKey = key.PublicKeyBase64
 			}
-			if idParts[1] == "encrypting" {
-				if key.Owner != registration.DID.ID {
-					result = multierror.Append(result, errors.New("Encrypting key owner incorrect"))
+		}
+		if contextVersion == 2 {
+			if len(idParts) > 1 {
+				if idParts[1] == "signing" {
+					if key.Controller != registration.DID.ID {
+						result = multierror.Append(result, errors.New("Signing key owner incorrect"))
+					}
+					if key.Type != "Ed25519VerificationKey2018" {
+						result = multierror.Append(result, errors.New("Signing key type incorrect"))
+					}
+					registration.SigningKey = b58tob64(key.PublicKeyBase58)
 				}
-				if key.Type != "curve25519" {
-					result = multierror.Append(result, errors.New("Encrypting key type incorrect"))
+				if idParts[1] == "encrypting" {
+					if key.Controller != registration.DID.ID {
+						result = multierror.Append(result, errors.New("Encrypting key owner incorrect"))
+					}
+					if key.Type != "X25519KeyAgreementKey2019" {
+						result = multierror.Append(result, errors.New("Encrypting key type incorrect"))
+					}
+					registration.EncryptingKey = b58tob64(key.PublicKeyBase58) // store encrypting key in db as base64
 				}
-				registration.EncryptingKey = key.PublicKeyBase64
 			}
 		}
 	}

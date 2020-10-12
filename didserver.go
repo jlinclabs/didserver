@@ -36,7 +36,8 @@ type keys struct {
 }
 
 type at struct {
-	Context string `toml:"context"`
+	ContextV1 string `toml:"contextV1"`
+	ContextV2 string `toml:"contextV2"`
 }
 
 type app struct {

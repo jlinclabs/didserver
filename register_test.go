@@ -70,7 +70,7 @@ func TestBadRegisterInput(t *testing.T) {
 		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusBadRequest)
 	}
 
-	expected := `{"success":false,"error":"request contained 6 errors: @context missing or incorrect, id must be did:jlinc:{base64 encoded string}, Signing key owner incorrect, Encrypting key owner incorrect, signature did not verify, secret did not decrypt correctly"}`
+	expected := `{"success":false,"error":"request contained 4 errors: @context missing or incorrect, id must be did:jlinc:{base64 encoded string}, signing public key missing or size incorrect, encrypting public key missing or size incorrect"}`
 	if rr.Body.String() != expected {
 		t.Errorf("handler returned unexpected body: got %v want %v", rr.Body.String(), expected)
 	}
@@ -121,6 +121,85 @@ func TestGoodRegisterInput(t *testing.T) {
 	var id, root, did, status string
 	expectedID := "did:jlinc:UrbERsLcleNbYyh1LvWWci45q-gxUE-wPqnQfGN7eF8"
 	expectedRoot := "did:jlinc:UrbERsLcleNbYyh1LvWWci45q-gxUE-wPqnQfGN7eF8"
+	expectedStatus := "init"
+
+	row := DB.QueryRow("select id, root, did, status FROM didstore ORDER BY created desc")
+	err = row.Scan(&id, &root, &did, &status)
+
+	// Unmarshal and re-Marshal the input and the DB's did value so they can be compared
+	type RawDid struct {
+		DID interface{} `json:"did"`
+	}
+	var expectedDID RawDid
+	json.Unmarshal([]byte(input), &expectedDID)
+	var rawFromDB RawDid
+	json.Unmarshal([]byte(did), &rawFromDB)
+
+	expectedjs, _ := json.Marshal(expectedDID)
+	rawjs, _ := json.Marshal(rawFromDB)
+
+	if string(rawjs) != string(expectedjs) {
+		t.Errorf("database returned unexpected did: got %+v want %+v", string(rawjs), string(expectedjs))
+	}
+
+	if id != expectedID || root != expectedRoot || status != expectedStatus {
+		t.Errorf("database returned unexpected value(s): got %q, %q, %q want %q, %q, %q with error %v", id, root, status, expectedID, expectedRoot, expectedStatus, err)
+	}
+
+	// delete previous entries from the test database
+	stmt, err := DB.Prepare("DELETE FROM didstore WHERE status = $1")
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+	stmt.Exec("init")
+}
+
+func TestV2RegisterInput(t *testing.T) {
+	if _, err := toml.DecodeFile("./test.config.toml", &Conf); err != nil {
+		log.Fatal(err)
+		return
+	}
+	connStr := Conf.Database.ConnectionString
+	var err error
+	DB, err = sql.Open("postgres", connStr)
+	defer DB.Close()
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+
+	Conf.IsTest = true //so it doesn't test the timestamp
+
+	input := `{"did":{"@context":"https://www.w3.org/ns/did/v1","id":"did:jlinc:kk9XpB7ulSmNf3Sret5aShVb0jeEXiD49EmWsOYypV4","created":"2020-10-02T20:49:52.445Z","publicKey":[{"id":"did:jlinc:kk9XpB7ulSmNf3Sret5aShVb0jeEXiD49EmWsOYypV4#signing","type":"Ed25519VerificationKey2018","controller":"did:jlinc:kk9XpB7ulSmNf3Sret5aShVb0jeEXiD49EmWsOYypV4","publicKeyBase58":"Ar8hHo9sZxffNu8URMMv9QNoFeswQ1f68zqRnDV6ZkP7"},{"id":"did:jlinc:kk9XpB7ulSmNf3Sret5aShVb0jeEXiD49EmWsOYypV4#encrypting","type":"X25519KeyAgreementKey2019","controller":"did:jlinc:kk9XpB7ulSmNf3Sret5aShVb0jeEXiD49EmWsOYypV4","publicKeyBase58":"5451gA3VdoNm9x6XjcrEahW9ybYSEyMEvby4SPQ8jBp8"}]},"secret":{"cyphertext":"AAAAAAAAAAAAAAAAAAAAAEWpQBka9JDUMAgTOBCGyQbs2XNK-6viDI591mTro5kodDr2H7rK0R_OruRy6DYwSSMB4CjXGkXbwYpEpV5FJc4MqQdJ5TyTbJ_v5ZIDj4RL","nonce":"kmUXfbUNqDN3K0adzt1sSw6T1nmdAziJ"},"signature":"39EHtzY9nB_AipGWcA9AP3nN_SC_31TAng8zfT2uo46Hl2AYly4ymgWbEZ4n0g-msC791cTCP4UVFxmfN2M0BA"}`
+	inputReader := strings.NewReader(input)
+
+	req, err := http.NewRequest("POST", "/register", inputReader)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(registerDID)
+
+	handler.ServeHTTP(rr, req)
+
+	if ctype := rr.Header().Get("Content-Type"); ctype != "application/json" {
+		t.Errorf("content type header does not match: got %v want %v", ctype, "application/json")
+	}
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+
+	goodBody := regexp.MustCompile(`^\{"id":"did:jlinc:[\w\-]+", "challenge":"[\w\-]+"\}$`)
+	if !goodBody.MatchString(rr.Body.String()) {
+		t.Errorf("handler returned unexpected body: got %v", rr.Body.String())
+	}
+
+	var id, root, did, status string
+	expectedID := "did:jlinc:kk9XpB7ulSmNf3Sret5aShVb0jeEXiD49EmWsOYypV4"
+	expectedRoot := "did:jlinc:kk9XpB7ulSmNf3Sret5aShVb0jeEXiD49EmWsOYypV4"
 	expectedStatus := "init"
 
 	row := DB.QueryRow("select id, root, did, status FROM didstore ORDER BY created desc")

@@ -43,6 +43,8 @@ type pubkey struct {
 	Type            string `json:"type"`
 	Owner           string `json:"owner"`
 	PublicKeyBase64 string `json:"publicKeyBase64"`
+	Controller      string `json:"controller"`
+	PublicKeyBase58 string `json:"publicKeyBase58"`
 }
 
 // get the raw did section without emptying r.Body

@@ -285,3 +285,103 @@ func TestGoodSupersedeInput(t *testing.T) {
 	stmt, _ = DB.Prepare("DELETE FROM didstore")
 	stmt.Exec()
 }
+
+func TestGoodV2SupersedeInput(t *testing.T) {
+	if _, err := toml.DecodeFile("./test.config.toml", &Conf); err != nil {
+		log.Fatal(err)
+		return
+	}
+	connStr := Conf.Database.ConnectionString
+	var err error
+	DB, err = sql.Open("postgres", connStr)
+	defer DB.Close()
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+
+	Conf.IsTest = true //so it doesn't test the timestamp
+
+	// enter test data in the DB
+	stmt, err := DB.Prepare(`INSERT INTO didstore (id,
+                                              root,
+                                              signing_pubkey,
+                                              encrypting_pubkey,
+                                              secret_cypher,
+                                              secret_nonce,
+                                              challenge,
+                                              status) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`)
+	if err != nil {
+		log.Fatal(err)
+		return
+	}
+	_, err = stmt.Exec("did:jlinc:KgHfLVmijrWnntRVyPa_wYqDsMXggfNm9GgOlvZ8KsU",
+		"did:jlinc:KgHfLVmijrWnntRVyPa_wYqDsMXggfNm9GgOlvZ8KsU",
+		"KgHfLVmijrWnntRVyPa_wYqDsMXggfNm9GgOlvZ8KsU",
+		"S3ky3CA3Vn_eBEZOzm98uhKnFlXWkH-dloik6sM0n34",
+		"AAAAAAAAAAAAAAAAAAAAADPOpTfniiymYRnvPco7dRKZPWH3DJAUhHAk7z9_rrSJqHZ6pKqfp746AHkP6pPsvgZ9tSbUgg_KSKNha1fSF2x7W2pn1y_9y4nzKmhaewwZ",
+		"BcidY31oPepaxmga2jmg80RL4IxC_Y7k",
+		"e9cde8c1ee33f090fd92fb6b82830b32774ee4ac54e1c050ff59b3e6a300020a",
+		"verified")
+	if err != nil {
+		t.Errorf("Insert into db error: %q", err)
+	}
+
+	input := `{"did":{"@context":"https://www.w3.org/ns/did/v1","id":"did:jlinc:xBAyubAeZq33R1SFlM9WPBCmaRN4hgtCSc3pnE91kxM","created":"2020-10-06T01:41:16.341Z","publicKey":[{"id":"did:jlinc:xBAyubAeZq33R1SFlM9WPBCmaRN4hgtCSc3pnE91kxM#signing","type":"Ed25519VerificationKey2018","controller":"did:jlinc:xBAyubAeZq33R1SFlM9WPBCmaRN4hgtCSc3pnE91kxM","publicKeyBase58":"ECMEboYvi4kPgv6HAV4i3mGQcAUtq6ZGA6tFSj7VFJ5Q"},{"id":"did:jlinc:xBAyubAeZq33R1SFlM9WPBCmaRN4hgtCSc3pnE91kxM#encrypting","type":"X25519KeyAgreementKey2019","controller":"did:jlinc:xBAyubAeZq33R1SFlM9WPBCmaRN4hgtCSc3pnE91kxM","publicKeyBase58":"AV8mXppUYDpFqtwz6Zrf7vecRFJUgSLmFX88A2ZQWVjT"}]},"signature":"tWwu-by7jo6h6T1hzcmK-nF4xWCoYHskn4tx3TlgwQ14xlPLTqDPE-Qgk_DfFCKR_UtqqetBqdNml46hZzT8Aw","supersedes":"did:jlinc:KgHfLVmijrWnntRVyPa_wYqDsMXggfNm9GgOlvZ8KsU"}`
+	inputReader := strings.NewReader(input)
+
+	req, err := http.NewRequest("POST", "/supersede", inputReader)
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(supersedeDID)
+
+	handler.ServeHTTP(rr, req)
+
+	if ctype := rr.Header().Get("Content-Type"); ctype != "application/json" {
+		t.Errorf("content type header does not match: got %v want %v", ctype, "application/json")
+	}
+
+	if status := rr.Code; status != http.StatusOK {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusOK)
+	}
+
+	goodBody := regexp.MustCompile(`^\{"id":"did:jlinc:[\w\-]+", "challenge":"[\w\-]+"\}$`)
+	if !goodBody.MatchString(rr.Body.String()) {
+		t.Errorf("handler returned unexpected body: got %v", rr.Body.String())
+	}
+
+	var id, root, did, status string
+	expectedID := "did:jlinc:xBAyubAeZq33R1SFlM9WPBCmaRN4hgtCSc3pnE91kxM"
+	expectedRoot := "did:jlinc:KgHfLVmijrWnntRVyPa_wYqDsMXggfNm9GgOlvZ8KsU"
+	expectedStatus := "init"
+
+	row := DB.QueryRow("select id, root, did, status FROM didstore ORDER BY created desc")
+	err = row.Scan(&id, &root, &did, &status)
+
+	// Unmarshal and re-Marshal the input and the DB's did value so they can be compared
+	type RawDid struct {
+		DID interface{} `json:"did"`
+	}
+	var expectedDID RawDid
+	json.Unmarshal([]byte(input), &expectedDID)
+	var rawFromDB RawDid
+	json.Unmarshal([]byte(did), &rawFromDB)
+
+	expectedjs, _ := json.Marshal(expectedDID)
+	rawjs, _ := json.Marshal(rawFromDB)
+
+	if string(rawjs) != string(expectedjs) {
+		t.Errorf("database returned unexpected did: got %+v want %+v", string(rawjs), string(expectedjs))
+	}
+
+	if id != expectedID || root != expectedRoot || status != expectedStatus {
+		t.Errorf("database returned unexpected value(s): got %q, %q, %q want %q, %q, %q with error %v", id, root, status, expectedID, expectedRoot, expectedStatus, err)
+	}
+
+	// delete previous entries from the test database
+	stmt, _ = DB.Prepare("DELETE FROM didstore")
+	stmt.Exec()
+}

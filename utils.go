@@ -9,6 +9,8 @@ import (
 	"net/http"
 	"strconv"
 	"strings"
+
+	"github.com/shengdoushi/base58"
 )
 
 // Formatting multierror results
@@ -25,6 +27,17 @@ func formatErrors(es []error) string {
 	return fmt.Sprintf(
 		"request contained %d errors: %s",
 		len(es), strings.Join(points, ", "))
+}
+
+func checkAtContext(atCtx string) int {
+	contextVersion := 0
+	switch atCtx {
+	case Conf.At.ContextV1:
+		contextVersion = 1
+	case Conf.At.ContextV2:
+		contextVersion = 2
+	}
+	return contextVersion
 }
 
 type pageContextKey string
@@ -81,4 +94,17 @@ func b64Encode(h []byte) string {
 	encoder.Write(h)
 	encoder.Close()
 	return buf.String()
+}
+
+func b58Decode(s string) []byte {
+	decoded, _ := base58.Decode(s, base58.BitcoinAlphabet)
+	return decoded
+}
+
+func b58Encode(h []byte) string {
+	return base58.Encode(h, base58.BitcoinAlphabet)
+}
+
+func b58tob64(s string) string {
+	return b64Encode(b58Decode(s))
 }
