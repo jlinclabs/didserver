@@ -25,7 +25,8 @@ public = "GET THIS KEY IN THE NEXT STEP"
 secret = "GET THIS KEY IN THE NEXT STEP"
 
 [at]
-context = "https://w3id.org/did/v1"
+contextV1 = "https://w3id.org/did/v1"
+contextV2 = "https://www.w3.org/ns/did/v1"
 
 [app]
 url = "http://localhost:5001"
