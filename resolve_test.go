@@ -272,8 +272,8 @@ func TestResolveSuperseded(t *testing.T) {
 		t.Errorf("content type header does not match: got %v want %v", ctype, "application/json")
 	}
 
-	if status := rr.Code; status != http.StatusSeeOther {
-		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusSeeOther)
+	if status := rr.Code; status != http.StatusMovedPermanently {
+		t.Errorf("handler returned wrong status code: got %v want %v", status, http.StatusMovedPermanently)
 	}
 
 	expected := `{"supersededBy":"did:jlinc:jXjy7N3NK3MboZjhAGgZPJRqKr13TPtrLY0Bsz7Cyic"}`

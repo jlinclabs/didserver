@@ -45,7 +45,7 @@ func resolve(w http.ResponseWriter, r *http.Request) {
 		superID, superURL := getSupersededBy(root)
 		w.Header().Set("Content-Type", "application/json")
 		w.Header().Set("Location", superURL)
-		w.WriteHeader(http.StatusSeeOther)
+		w.WriteHeader(http.StatusMovedPermanently)
 		fmt.Fprintf(w, `{"supersededBy":%q}`, superID)
 	case status == "verified": //success
 		w.Header().Set("Content-Type", "application/ld+json")
