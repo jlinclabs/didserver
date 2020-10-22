@@ -28,6 +28,7 @@ go get golang.org/x/crypto/nacl/box
 go get github.com/go-chi/chi
 go get github.com/go-chi/chi/middleware
 go get github.com/hashicorp/go-multierror
+go get github.com/shengdoushi/base58
 
 set +x
 
