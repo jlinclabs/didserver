@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"net/http"
 
-	jwt "github.com/dgrijalva/jwt-go"
+	"github.com/golang-jwt/jwt"
 	multierror "github.com/hashicorp/go-multierror"
 	_ "github.com/lib/pq"
 )
